@@ -1,0 +1,25 @@
+{
+  "name": "fred",
+  "version": "1.0.0",
+  "description": "cecs 478 project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calltedkim/ak478_server.git"
+  },
+  "keywords": [
+    "security"
+  ],
+  "author": "fred",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/calltedkim/ak478_server/issues"
+  },
+  "homepage": "https://github.com/calltedkim/ak478_server#readme",
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}
