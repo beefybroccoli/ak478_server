@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var connect = require('connect'); //this added this line
+//var app = require('../app'); //ted comment this line
+var debug = require('debug')('mysite:server');
+var http = require('http');
+var express = require('express'); //ted added this line
+var app = express();
+var helmet = require('helmet');
+app.use(helmet.noCache());
+app.use(helmet.frameguard());
+
+//ted added these lines
+var sts = require('strict-transport-security');
+var globalSTS = sts.getSTS({"max-age":{days:365}});
+var localSTS = sts.getSTS({"max-age":{days:365, includeSubDomains:true}});
+app.use(globalSTS); //this wiill apply this policy to all request
+app.get('/settings',
+	localSTS, //this will apply the local policy just to this path
+	function(req, res) {
+		res.render('settings');
+	});
+
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set(80, port);
+
+/**
+ * Create HTTP server.
+ */
+//var server = http.createServer(app);
+
+/**ted added this line */
+//var server = https.createServer(app); 
+
+// Edit by AN
+// Create HTTPS server
+var fs = require('fs');
+var privateKey = fs.readFileSync('../sslcert/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('../sslcert/fullchain.pem', 'utf8');
+var protocol = 'TLSv1_2_method';
+var ciphers = [	'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384',
+		'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
+		'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA',
+		'TLS_RSA_WITH_AES_256_GCM_SHA384',
+		'TLS_RSA_WITH_AES_256_CBC_SHA256',
+		'TLS_RSA_WITH_AES_256_CBC_SHA',
+		'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
+		'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256',
+		'TLS_RSA_WITH_AES_128_GCM_SHA256',
+		'TLS_RSA_WITH_AES_128_CBC_SHA256' ].join(':');
+var credentials = {key: privateKey, cert: certificate, secureProtocol: protocol, ciphers: ciphers };
+var https = require('https');
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(443);
+
+// For an HTTP request, returns HTTP 308 Permanent Redirect and an HTTPS URL
+var server = http.createServer(
+	function(request, resource)
+	{
+		resource.writeHead(308, 
+				{
+					 "Location": "https://" + request.headers['host'] + request.url
+				});
+		resource.end();
+	});
+
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(80);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
