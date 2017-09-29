@@ -5,7 +5,7 @@
  */
 
 var connect = require('connect'); //this added this line
-//var app = require('../app'); //ted comment this line
+var path = require('path');
 var debug = require('debug')('mysite:server');
 var http = require('http');
 var express = require('express'); //ted added this line
@@ -13,11 +13,15 @@ var app = express();
 var helmet = require('helmet');
 app.use(helmet.noCache());
 app.use(helmet.frameguard());
+app.get('/', function(req, res) {
+	res.sendFile('index.html', {root : '../public'});
+});
+
 
 //ted added these lines
 var sts = require('strict-transport-security');
-var globalSTS = sts.getSTS({"max-age":{days:365}});
-var localSTS = sts.getSTS({"max-age":{days:365, includeSubDomains:true}});
+var globalSTS = sts.getSTS({"max-age":{days:200}});
+var localSTS = sts.getSTS({"max-age":{days:200, includeSubDomains:true}});
 app.use(globalSTS); //this wiill apply this policy to all request
 app.get('/settings',
 	localSTS, //this will apply the local policy just to this path
@@ -33,21 +37,15 @@ app.get('/settings',
 var port = normalizePort(process.env.PORT || '3000');
 app.set(80, port);
 
-/**
- * Create HTTP server.
- */
-//var server = http.createServer(app);
-
-/**ted added this line */
-//var server = https.createServer(app); 
-
 // Edit by AN
 // Create HTTPS server
 var fs = require('fs');
 var privateKey = fs.readFileSync('../sslcert/privkey.pem', 'utf8');
 var certificate = fs.readFileSync('../sslcert/fullchain.pem', 'utf8');
 var protocol = 'TLSv1_2_method';
-var ciphers = [	'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384',
+
+/**
+var ciphersAlgorithms = [	'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384',
 		'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384',
 		'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA',
 		'TLS_RSA_WITH_AES_256_GCM_SHA384',
@@ -57,9 +55,12 @@ var ciphers = [	'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384',
 		'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256',
 		'TLS_RSA_WITH_AES_128_GCM_SHA256',
 		'TLS_RSA_WITH_AES_128_CBC_SHA256' ].join(':');
-var credentials = {key: privateKey, cert: certificate, secureProtocol: protocol, ciphers: ciphers };
+var options = {key: privateKey, cert: certificate, secureProtocol: protocol, ciphers: ciphersAlgorithms };
+*/
+
+var options = {key: privateKey, cert: certificate, secureProtocol: protocol};
 var https = require('https');
-var httpsServer = https.createServer(credentials, app);
+var httpsServer = https.createServer(options, app);
 httpsServer.listen(443);
 
 // For an HTTP request, returns HTTP 308 Permanent Redirect and an HTTPS URL
