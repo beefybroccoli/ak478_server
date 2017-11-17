@@ -1,20 +1,40 @@
 {
-  "name": "mysite",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
-  },
-  "dependencies": {
-    "body-parser": "~1.17.1",
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.6.3",
-    "ejs": "~2.5.6",
-    "express": "~4.15.2",
-    "forever": "^0.15.3",
-    "forever-monitor": "^1.7.1",
-    "monitor": "^0.6.10",
-    "morgan": "~1.8.1",
-    "serve-favicon": "~2.4.2"
-  }
+	"name": "cecs478",
+	"version": "0.0.0",
+	"private": true,
+	"description": "CECS 478 Project",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node ./bin/server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/calltedkim/ak478_server.git"
+	},
+	"bugs": {
+		"url": "https://github.com/calltedkim/ak478_server/issues"
+	},
+	"homepage": "https://github.com/calltedkim/ak478_server#readme",
+	"dependencies": {
+		"bcrypt": "^1.0.3",
+		"body-parser": "~1.18.2",
+		"cookie-parser": "~1.4.3",
+		"debug": "~2.6.9",
+		"ejs": "~2.5.7",
+		"express": "^4.16.2",
+		"helmet": "^3.9.0",
+		"hi-base32": "^0.3.0",
+		"jwt-simple": "^0.5.1",
+		"mongoose": "^4.13.3",
+		"morgan": "~1.9.0",
+		"passport": "^0.4.0",
+		"passport-jwt": "^3.0.1",
+		"serve-favicon": "~2.4.5",
+		"speakeasy": "^2.0.0"
+	},
+	"contributors": [
+		"Alyssa Nguyen (http://www.holokitty.net)",
+		"Ted Kim"
+	],
+	"license": "UNLICENSED"
 }
